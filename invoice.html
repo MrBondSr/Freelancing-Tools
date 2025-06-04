@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Freelance Invoice Generator</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f1f1f1;
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #fff;
+    }
+    section {
+      margin: 20px 0;
+    }
+    label, li {
+      display: block;
+      margin: 10px 0;
+    }
+    .required-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .required-label .asterisk {
+      color: red;
+    }
+    .form-control {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+    input[type="text"], input[type="email"], input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      margin-top: 4px;
+    }
+    input[type="text"] {
+      text-transform: capitalize;
+    }
+    input[type="email"] {
+      text-transform: none;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li input[type="checkbox"], li input[type="radio"] {
+      margin-right: 10px;
+    }
+    #otherTextInput {
+      display: none;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      display: none;
+    }
+    h2 .asterisk {
+      color: red;
+      margin-right: 4px;
+    }
+    .preferred {
+      font-style: italic;
+      color: #ccc;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Freelance Invoice Generator</h1>
+
+  <section>
+    <h2><span class="asterisk">*</span>Contact Information</h2>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Your Name:</span></label>
+      <input type="text" id="yourName" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Your Email:</span></label>
+      <input type="email" id="yourEmail" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Client Name:</span></label>
+      <input type="text" id="clientName" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Client Email:</span></label>
+      <input type="email" id="clientEmail" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Video Title or Project Name:</span></label>
+      <input type="text" id="projectTitle" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Invoice Date:</span></label>
+      <input type="date" id="invoiceDate" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Due Date:</span></label>
+      <input type="date" id="dueDate" required>
+    </div>
+    <div class="form-control">
+      <label class="required-label"><span class="asterisk">*</span><span>Amount Paid:</span></label>
+      <input type="number" id="amountPaid" min="0" step="0.01" required>
+    </div>
+    <div class="form-control">
+      <label>Notes (optional):</label>
+      <input type="text" id="invoiceNotes">
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="asterisk">*</span>Packages</h2>
+    <ul>
+      <li><input type="radio" name="package" id="basic"> Basic - $20</li>
+      <li><input type="radio" name="package" id="standard"> Standard - $50</li>
+      <li><input type="radio" name="package" id="premium"> Premium - $90</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="asterisk">*</span>Add-ons</h2>
+    <ul>
+      <li><input type="checkbox" id="noAddons"> No Add-ons</li>
+      <li><input type="checkbox" id="extraRevision"> Extra Revision - $10</li>
+      <li><input type="checkbox" id="rushDelivery"> Rush Delivery - $20</li>
+      <li><input type="checkbox" id="thumbnailDesign"> Thumbnail Design - $15</li>
+      <li><input type="checkbox" id="srtFile"> .SRT Subtitle File - $5</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="asterisk">*</span>Payment Method</h2>
+    <p class="preferred">Preferred: PayPal or Venmo</p>
+    <ul>
+      <li><input type="checkbox" id="paypal"> PayPal</li>
+      <li><input type="checkbox" id="venmo"> Venmo</li>
+      <li><input type="checkbox" id="zelle"> Zelle</li>
+      <li><input type="checkbox" id="bankTransfer"> Bank Transfer</li>
+      <li>
+        <input type="checkbox" id="otherPayment" onchange="toggleOtherInput()"> Other
+        <input type="text" id="otherTextInput" placeholder="Enter payment method">
+      </li>
+    </ul>
+  </section>
+
+  <div class="error" id="errorMsg"></div>
+
+  <button onclick="downloadInvoice()">Download Invoice as PDF</button>
+  <button onclick="clearForm()">Clear Form</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    const { jsPDF } = window.jspdf;
+
+    function toggleOtherInput() {
+      const otherCheckbox = document.getElementById("otherPayment");
+      const otherTextInput = document.getElementById("otherTextInput");
+      otherTextInput.style.display = otherCheckbox.checked ? "block" : "none";
+    }
+
+    function clearForm() {
+      document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], input[type="number"]').forEach(input => input.value = '');
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
+      toggleOtherInput();
+    }
+
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function capitalizeWords(str) {
+      return str.replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    function downloadInvoice() {
+      const doc = new jsPDF();
+      const getValue = id => document.getElementById(id)?.value.trim() || '';
+      const getChecked = id => document.getElementById(id)?.checked;
+      const errorMsg = document.getElementById("errorMsg");
+      errorMsg.style.display = "none";
+
+      const yourEmail = getValue("yourEmail");
+      const clientEmail = getValue("clientEmail");
+
+      if (!isValidEmail(yourEmail) || !isValidEmail(clientEmail)) {
+        errorMsg.textContent = "Please enter valid email addresses.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      let y = 10;
+      const addLine = (label, value) => {
+        if (Array.isArray(value)) {
+          doc.text(`${label}:`, 10, y);
+          y += 10;
+          value.forEach(item => {
+            doc.text(`- ${item}`, 14, y);
+            y += 10;
+          });
+        } else {
+          doc.text(`${label}: ${value}`, 10, y);
+          y += 10;
+        }
+      };
+
+      const yourName = capitalizeWords(getValue("yourName"));
+      const clientName = capitalizeWords(getValue("clientName"));
+      const invoiceNumber = `INV-${Date.now()}`;
+
+      addLine("Invoice Number", invoiceNumber);
+      addLine("Your Name", yourName);
+      addLine("Your Email", yourEmail);
+      addLine("Client Name", clientName);
+      addLine("Client Email", clientEmail);
+      addLine("Project Title", getValue("projectTitle"));
+      addLine("Invoice Date", getValue("invoiceDate"));
+      addLine("Due Date", getValue("dueDate"));
+      addLine("Notes", getValue("invoiceNotes"));
+
+      const packageOptions = {
+        basic: 20,
+        standard: 50,
+        premium: 90
+      };
+      let total = 0;
+      let selectedPackageLabel = "";
+      for (const id in packageOptions) {
+        if (getChecked(id)) {
+          total += packageOptions[id];
+          selectedPackageLabel = `${capitalizeWords(id)} - $${packageOptions[id]}`;
+          break;
+        }
+      }
+      if (selectedPackageLabel) {
+        addLine("Package", selectedPackageLabel);
+      }
+
+      const addonMap = {
+        extraRevision: 10,
+        rushDelivery: 20,
+        thumbnailDesign: 15,
+        srtFile: 5
+      };
+      const addonLabels = {
+        extraRevision: "Extra Revision - $10",
+        rushDelivery: "Rush Delivery - $20",
+        thumbnailDesign: "Thumbnail Design - $15",
+        srtFile: ".SRT Subtitle File - $5"
+      };
+      const selectedAddons = [];
+      for (const id in addonMap) {
+        if (getChecked(id)) {
+          total += addonMap[id];
+          selectedAddons.push(addonLabels[id]);
+        }
+      }
+      if (selectedAddons.length > 0) {
+        addLine("Add-ons", selectedAddons);
+      }
+
+      const paymentMethods = [];
+      if (getChecked("paypal")) paymentMethods.push("PayPal");
+      if (getChecked("venmo")) paymentMethods.push("Venmo");
+      if (getChecked("zelle")) paymentMethods.push("Zelle");
+      if (getChecked("bankTransfer")) paymentMethods.push("Bank Transfer");
+      if (getChecked("otherPayment")) paymentMethods.push(`Other: ${getValue("otherTextInput")}`);
+      addLine("Payment Method(s)", paymentMethods);
+
+      const paidAmount = parseFloat(getValue("amountPaid")) || 0;
+      const due = total - paidAmount;
+      addLine("Total Cost", `$${total.toFixed(2)}`);
+      addLine("Amount Paid", `$${paidAmount.toFixed(2)}`);
+      addLine("Balance Due", `$${due.toFixed(2)}`);
+
+      doc.save(`${invoiceNumber}_${clientName || "client"}.pdf`);
+    }
+  </script>
+</body>
+</html>

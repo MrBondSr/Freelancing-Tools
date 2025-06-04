@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Video Editing Workflow Checklist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #f1f1f1;
+      line-height: 1.6;
+      margin: 40px auto;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffffff;
+    }
+    h2 {
+      margin-top: 30px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 5px;
+      color: #cccccc;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    code {
+      background: #333;
+      padding: 2px 4px;
+      border-radius: 4px;
+      color: #9cf;
+    }
+    [contenteditable] {
+      outline: 1px dashed #666;
+      padding: 4px;
+      margin: 4px 0;
+      border-radius: 4px;
+    }
+    .download-button {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;
+    }
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+    button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1 contenteditable="true">Video Editing Workflow Checklist</h1>
+
+  <div class="download-button">
+    <button onclick="downloadPDF()">Download as PDF</button>
+    <button onclick="saveToLocalStorage()">Save Progress</button>
+    <button onclick="loadFromLocalStorage()">Load Progress</button>
+  </div>
+
+  <div id="checklist">
+    <h2 contenteditable="true">1. Client Onboarding</h2>
+    <ul>
+      <li><input type="checkbox"> Discuss project scope, deadlines, and platform (YouTube, IG, TikTok, etc.)</li>
+      <li><input type="checkbox"> Gather assets: video clips, brand materials, music preferences</li>
+      <li><input type="checkbox"> Confirm pricing (based on selected package + add-ons)</li>
+      <li><input type="checkbox"> Create project folder: <code>/Clients/ClientName/ProjectName/</code></li>
+    </ul>
+
+    <h2 contenteditable="true">2. Send Invoice (Initial)</h2>
+    <ul>
+      <li><input type="checkbox"> Invoice the client before starting</li>
+      <li><input type="checkbox"> Optional: Require 50% upfront for larger jobs</li>
+      <li><input type="checkbox"> Track invoice status (paid/unpaid)</li>
+    </ul>
+
+    <h2 contenteditable="true">3. Editing Phase</h2>
+    <ul>
+      <li><input type="checkbox"> Import and organize footage</li>
+      <li><input type="checkbox"> Perform rough cut</li>
+      <li><input type="checkbox"> Add text overlays, effects, music, transitions</li>
+      <li><input type="checkbox"> Add captions using Whisper + Whisper.cpp</li>
+      <li><input type="checkbox"> Export first draft</li>
+    </ul>
+
+    <h2 contenteditable="true">4. Client Review & Revisions</h2>
+    <ul>
+      <li><input type="checkbox"> Upload to Frame.io or preferred platform</li>
+      <li><input type="checkbox"> Notify client and gather revision notes</li>
+      <li><input type="checkbox"> Apply revisions (limit based on package)</li>
+      <li><input type="checkbox"> If revisions exceed limit:
+        <ul>
+          <li><input type="checkbox"> Inform client</li>
+          <li><input type="checkbox"> Send invoice for extra revision ($10)</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2 contenteditable="true">5. Final Approval</h2>
+    <ul>
+      <li><input type="checkbox"> Export final version (H.264 for delivery, H.265 for backup)</li>
+      <li><input type="checkbox"> Upload deliverables (final video, .srt file, thumbnail if included)</li>
+      <li><input type="checkbox"> Deliver via Frame.io, Dropbox, Google Drive, etc.</li>
+    </ul>
+
+    <h2 contenteditable="true">6. Send Final Invoice (If not prepaid in full)</h2>
+    <ul>
+      <li><input type="checkbox"> Include any add-ons or extra revision charges</li>
+      <li><input type="checkbox"> Confirm client payment</li>
+    </ul>
+
+    <h2 contenteditable="true">7. Archive Project</h2>
+    <ul>
+      <li><input type="checkbox"> Compress and export a space-saving backup (H.265, 5–8 Mbps)</li>
+      <li><input type="checkbox"> Store in backup location: <code>/Archive/ClientName_ProjectName/</code></li>
+      <li><input type="checkbox"> Keep final exports, assets, invoice, and client notes</li>
+      <li><input type="checkbox"> Optionally delete from Frame.io or cloud to free up space</li>
+    </ul>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const content = document.getElementById("checklist").innerText;
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 10, 10);
+      doc.save("Video_Editing_Workflow.pdf");
+    }
+
+    function saveToLocalStorage() {
+      const checklistHTML = document.getElementById("checklist").innerHTML;
+      localStorage.setItem("videoEditingWorkflow", checklistHTML);
+      alert("Progress saved to local storage.");
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem("videoEditingWorkflow");
+      if (saved) {
+        document.getElementById("checklist").innerHTML = saved;
+        alert("Progress loaded from local storage.");
+      } else {
+        alert("No saved progress found.");
+      }
+    }
+  </script>
+</body>
+</html>
