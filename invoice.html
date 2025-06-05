@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Freelance Invoice Generator</title>
+  <title>SnipForge Media Invoice</title>
   <style>
     body {
       background-color: #121212;
@@ -83,15 +83,10 @@
       color: red;
       margin-right: 4px;
     }
-    .preferred {
-      font-style: italic;
-      color: #ccc;
-      font-size: 0.95em;
-    }
   </style>
 </head>
 <body>
-  <h1>Freelance Invoice Generator</h1>
+  <h1>SnipForge Media Invoice</h1>
 
   <section>
     <h2><span class="asterisk">*</span>Contact Information</h2>
@@ -147,7 +142,7 @@
     <ul>
       <li><input type="checkbox" id="noAddons"> No Add-ons</li>
       <li><input type="checkbox" id="extraRevision"> Extra Revision - $10</li>
-      <li><input type="checkbox" id="rushDelivery"> Rush Delivery - $20</li>
+      <li><input type="checkbox" id="rushDelivery"> Rush Delivery - $20+</li>
       <li><input type="checkbox" id="thumbnailDesign"> Thumbnail Design - $15</li>
       <li><input type="checkbox" id="srtFile"> .SRT Subtitle File - $5</li>
     </ul>
@@ -155,16 +150,9 @@
 
   <section>
     <h2><span class="asterisk">*</span>Payment Method</h2>
-    <p class="preferred">Preferred: PayPal or Venmo</p>
     <ul>
       <li><input type="checkbox" id="paypal"> PayPal</li>
       <li><input type="checkbox" id="venmo"> Venmo</li>
-      <li><input type="checkbox" id="zelle"> Zelle</li>
-      <li><input type="checkbox" id="bankTransfer"> Bank Transfer</li>
-      <li>
-        <input type="checkbox" id="otherPayment" onchange="toggleOtherInput()"> Other
-        <input type="text" id="otherTextInput" placeholder="Enter payment method">
-      </li>
     </ul>
   </section>
 
@@ -173,132 +161,135 @@
   <button onclick="downloadInvoice()">Download Invoice as PDF</button>
   <button onclick="clearForm()">Clear Form</button>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script>
-    const { jsPDF } = window.jspdf;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script>
+  const { jsPDF } = window.jspdf;
 
-    function toggleOtherInput() {
-      const otherCheckbox = document.getElementById("otherPayment");
-      const otherTextInput = document.getElementById("otherTextInput");
-      otherTextInput.style.display = otherCheckbox.checked ? "block" : "none";
+  function clearForm() {
+    document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], input[type="number"]').forEach(input => input.value = '');
+    document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+  }
+
+  function downloadInvoice() {
+    const doc = new jsPDF();
+    const getValue = id => document.getElementById(id)?.value.trim() || '';
+    const getChecked = id => document.getElementById(id)?.checked;
+    const errorMsg = document.getElementById("errorMsg");
+    errorMsg.style.display = "none";
+
+    const yourEmail = getValue("yourEmail");
+    const clientEmail = getValue("clientEmail");
+    if (!isValidEmail(yourEmail) || !isValidEmail(clientEmail)) {
+      errorMsg.textContent = "Please enter valid email addresses.";
+      errorMsg.style.display = "block";
+      return;
     }
 
-    function clearForm() {
-      document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], input[type="number"]').forEach(input => input.value = '');
-      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => input.checked = false);
-      toggleOtherInput();
+    const yourName = capitalizeWords(getValue("yourName"));
+    const clientName = capitalizeWords(getValue("clientName"));
+    const invoiceNumber = `INV-${Date.now()}`;
+    const invoiceDate = getValue("invoiceDate");
+    const dueDate = getValue("dueDate");
+    const projectTitle = capitalizeWords(getValue("projectTitle"));
+    const notes = getValue("invoiceNotes");
+    const paidAmount = parseFloat(getValue("amountPaid")) || 0;
+
+    const packageOptions = {
+      basic: 20,
+      standard: 50,
+      premium: 90
+    };
+    let total = 0;
+    let packageLabel = "";
+    for (const id in packageOptions) {
+      if (getChecked(id)) {
+        total += packageOptions[id];
+        packageLabel = `${capitalizeWords(id)} - $${packageOptions[id]}`;
+        break;
+      }
     }
 
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const addonMap = {
+      extraRevision: 10,
+      rushDelivery: 20,
+      thumbnailDesign: 15,
+      srtFile: 5
+    };
+    const addonLabels = {
+      extraRevision: "Extra Revision - $10",
+      rushDelivery: "Rush Delivery - $20+",
+      thumbnailDesign: "Thumbnail Design - $15",
+      srtFile: ".SRT Subtitle File - $5"
+    };
+    const selectedAddons = [];
+    for (const id in addonMap) {
+      if (getChecked(id)) {
+        total += addonMap[id];
+        selectedAddons.push(addonLabels[id]);
+      }
     }
 
-    function capitalizeWords(str) {
-      return str.replace(/\b\w/g, char => char.toUpperCase());
-    }
+    const paymentMethods = [];
+    if (getChecked("paypal")) paymentMethods.push("PayPal");
+    if (getChecked("venmo")) paymentMethods.push("Venmo");
 
-    function downloadInvoice() {
-      const doc = new jsPDF();
-      const getValue = id => document.getElementById(id)?.value.trim() || '';
-      const getChecked = id => document.getElementById(id)?.checked;
-      const errorMsg = document.getElementById("errorMsg");
-      errorMsg.style.display = "none";
+    const balance = total - paidAmount;
 
-      const yourEmail = getValue("yourEmail");
-      const clientEmail = getValue("clientEmail");
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("SnipForge Media Invoice", 105, 20, { align: "center" });
 
-      if (!isValidEmail(yourEmail) || !isValidEmail(clientEmail)) {
-        errorMsg.textContent = "Please enter valid email addresses.";
-        errorMsg.style.display = "block";
-        return;
-      }
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Invoice #: ${invoiceNumber}`, 14, 35);
+    doc.text(`Invoice Date: ${invoiceDate}`, 14, 42);
+    doc.text(`Due Date: ${dueDate}`, 14, 49);
 
-      let y = 10;
-      const addLine = (label, value) => {
-        if (Array.isArray(value)) {
-          doc.text(`${label}:`, 10, y);
-          y += 10;
-          value.forEach(item => {
-            doc.text(`- ${item}`, 14, y);
-            y += 10;
-          });
-        } else {
-          doc.text(`${label}: ${value}`, 10, y);
-          y += 10;
-        }
-      };
+    doc.text(`Billed To: ${clientName}`, 14, 62);
+    doc.text(`Email: ${clientEmail}`, 14, 69);
 
-      const yourName = capitalizeWords(getValue("yourName"));
-      const clientName = capitalizeWords(getValue("clientName"));
-      const invoiceNumber = `INV-${Date.now()}`;
+    doc.text(`Project: ${projectTitle}`, 14, 82);
+    if (notes) doc.text(`Notes: ${notes}`, 14, 89);
 
-      addLine("Invoice Number", invoiceNumber);
-      addLine("Your Name", yourName);
-      addLine("Your Email", yourEmail);
-      addLine("Client Name", clientName);
-      addLine("Client Email", clientEmail);
-      addLine("Project Title", getValue("projectTitle"));
-      addLine("Invoice Date", getValue("invoiceDate"));
-      addLine("Due Date", getValue("dueDate"));
-      addLine("Notes", getValue("invoiceNotes"));
+    const tableBody = [];
+    if (packageLabel) tableBody.push([packageLabel, `$${packageOptions[packageLabel.split(" ")[0].toLowerCase()].toFixed(2)}`]);
+    selectedAddons.forEach(label => {
+      const price = label.match(/\$\d+/)?.[0] || "$0";
+      tableBody.push([label, price]);
+    });
+    tableBody.push(["", ""]);
+    tableBody.push(["Total", `$${total.toFixed(2)}`]);
+    tableBody.push(["Amount Paid", `$${paidAmount.toFixed(2)}`]);
+    tableBody.push(["Balance Due", `$${balance.toFixed(2)}`]);
 
-      const packageOptions = {
-        basic: 20,
-        standard: 50,
-        premium: 90
-      };
-      let total = 0;
-      let selectedPackageLabel = "";
-      for (const id in packageOptions) {
-        if (getChecked(id)) {
-          total += packageOptions[id];
-          selectedPackageLabel = `${capitalizeWords(id)} - $${packageOptions[id]}`;
-          break;
-        }
-      }
-      if (selectedPackageLabel) {
-        addLine("Package", selectedPackageLabel);
-      }
+    doc.autoTable({
+      startY: 100,
+      head: [["Description", "Amount"]],
+      body: tableBody,
+      theme: "grid",
+      headStyles: { fillColor: [50, 50, 50], textColor: 255 },
+      styles: { fontSize: 11 },
+    });
 
-      const addonMap = {
-        extraRevision: 10,
-        rushDelivery: 20,
-        thumbnailDesign: 15,
-        srtFile: 5
-      };
-      const addonLabels = {
-        extraRevision: "Extra Revision - $10",
-        rushDelivery: "Rush Delivery - $20",
-        thumbnailDesign: "Thumbnail Design - $15",
-        srtFile: ".SRT Subtitle File - $5"
-      };
-      const selectedAddons = [];
-      for (const id in addonMap) {
-        if (getChecked(id)) {
-          total += addonMap[id];
-          selectedAddons.push(addonLabels[id]);
-        }
-      }
-      if (selectedAddons.length > 0) {
-        addLine("Add-ons", selectedAddons);
-      }
+    doc.setFont("helvetica", "bold");
+    doc.text("Payment Method Used:", 14, doc.lastAutoTable.finalY + 15);
+    doc.setFont("helvetica", "normal");
+    doc.text(paymentMethods.length > 0 ? paymentMethods.join(", ") : "N/A", 14, doc.lastAutoTable.finalY + 22);
 
-      const paymentMethods = [];
-      if (getChecked("paypal")) paymentMethods.push("PayPal");
-      if (getChecked("venmo")) paymentMethods.push("Venmo");
-      if (getChecked("zelle")) paymentMethods.push("Zelle");
-      if (getChecked("bankTransfer")) paymentMethods.push("Bank Transfer");
-      if (getChecked("otherPayment")) paymentMethods.push(`Other: ${getValue("otherTextInput")}`);
-      addLine("Payment Method(s)", paymentMethods);
+    doc.setFontSize(10);
+    doc.text("Thank you for your business!", 105, 285, { align: "center" });
 
-      const paidAmount = parseFloat(getValue("amountPaid")) || 0;
-      const due = total - paidAmount;
-      addLine("Total Cost", `$${total.toFixed(2)}`);
-      addLine("Amount Paid", `$${paidAmount.toFixed(2)}`);
-      addLine("Balance Due", `$${due.toFixed(2)}`);
-
-      doc.save(`${invoiceNumber}_${clientName || "client"}.pdf`);
-    }
-  </script>
+    doc.save(`${invoiceNumber}_${clientName || "client"}.pdf`);
+  }
+</script>
 </body>
 </html>
