@@ -3,160 +3,377 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Video Editing Workflow Checklist</title>
+  <title>SnipForge Media Workflow Checklist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-color: #000000;
+      --text-color: #e0e0e0;
+      --heading-color: #0f3460;
+      --border-color: #16213e;
+      --code-bg: #0d1a2f;
+      --code-color: #7fffd4;
+      --button-bg: #0f3460;
+      --button-hover-bg: #1a1a2e;
+      --outline-color: #533483;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #f1f1f1;
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       line-height: 1.6;
       margin: 40px auto;
       max-width: 800px;
       padding: 0 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
     }
     h1 {
       text-align: center;
-      color: #ffffff;
+      color: var(--heading-color);
+      padding-top: 20px;
+      margin-bottom: 30px;
     }
     h2 {
       margin-top: 30px;
-      border-bottom: 2px solid #444;
-      padding-bottom: 5px;
-      color: #cccccc;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+      color: var(--heading-color);
     }
     ul {
-      padding-left: 20px;
+      list-style-type: none; /* Remove default bullet points */
+      padding-left: 0;
     }
     li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      padding-left: 25px; /* Space for custom checkbox */
+      position: relative;
     }
-    code {
-      background: #333;
-      padding: 2px 4px;
+    li input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-color);
       border-radius: 4px;
-      color: #9cf;
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.2s, border-color 0.2s;
+      position: absolute;
+      left: 0;
+      top: 2px; /* Adjust as needed for alignment */
+    }
+    li input[type="checkbox"]:checked {
+      background-color: var(--heading-color);
+      border-color: var(--heading-color);
+    }
+    li input[type="checkbox"]:checked::after {
+      content: '✔';
+      display: block;
+      color: var(--text-color);
+      font-size: 14px;
+      text-align: center;
+      line-height: 18px;
+    }
+    li input[type="checkbox"]:focus {
+      box-shadow: 0 0 0 3px var(--outline-color);
+    }
+
+    code {
+      background: var(--code-bg);
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: var(--code-color);
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      font-size: 0.9em;
     }
     [contenteditable] {
-      outline: 1px dashed #666;
+      outline: 1px dashed var(--outline-color);
       padding: 4px;
       margin: 4px 0;
       border-radius: 4px;
+      min-width: 0; /* Ensures contenteditable plays nice with flex/grid */
+    }
+    [contenteditable]:focus {
+      outline: 2px solid var(--button-bg);
+      box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.5);
     }
     .download-button {
       display: flex;
+      flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
       justify-content: center;
-      gap: 10px;
-      margin: 20px auto;
+      gap: 15px;
+      margin: 30px auto;
+      padding-bottom: 20px;
     }
     button {
-      background-color: #333;
+      background-color: var(--button-bg);
       color: #fff;
       border: none;
-      padding: 10px 20px;
+      padding: 12px 25px;
       cursor: pointer;
       border-radius: 5px;
       font-size: 1em;
+      transition: background-color 0.3s ease, transform 0.2s;
+      flex-grow: 1; /* Allow buttons to grow */
+      max-width: 200px; /* Limit button width */
     }
     button:hover {
-      background-color: #555;
+      background-color: var(--button-hover-bg);
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .alert-message {
+      background-color: #28a745;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      margin-top: 20px;
+      display: none; /* Hidden by default */
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .alert-message.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      body {
+        margin: 20px auto;
+        padding: 0 15px;
+      }
+      .download-button button {
+        max-width: 100%; /* Full width buttons on small screens */
+      }
     }
   </style>
 </head>
 <body>
-  <h1 contenteditable="true">Video Editing Workflow Checklist</h1>
+  <h1 contenteditable="true" id="mainTitle">SnipForge Media Workflow Checklist</h1>
 
   <div class="download-button">
-    <button onclick="downloadPDF()">Download as PDF</button>
-    <button onclick="saveToLocalStorage()">Save Progress</button>
-    <button onclick="loadFromLocalStorage()">Load Progress</button>
+    <button id="downloadPdfBtn">Download as PDF</button>
+    <button id="saveProgressBtn">Save Progress</button>
+    <button id="loadProgressBtn">Load Progress</button>
   </div>
+  <div id="alertMessage" class="alert-message" aria-live="polite"></div>
 
   <div id="checklist">
-    <h2 contenteditable="true">1. Client Onboarding</h2>
-    <ul>
-      <li><input type="checkbox"> Discuss project scope, deadlines, and platform (YouTube, IG, TikTok, etc.)</li>
-      <li><input type="checkbox"> Gather assets: video clips, brand materials, music preferences</li>
-      <li><input type="checkbox"> Confirm pricing (based on selected package + add-ons)</li>
-      <li><input type="checkbox"> Create project folder: <code>/Clients/ClientName/ProjectName/</code></li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">1. Client Onboarding</h2>
+      <ul>
+        <li><input type="checkbox" id="clientOnboarding_1"> <label for="clientOnboarding_1">Discuss project scope, deadlines, and platform (YouTube, IG, TikTok, etc.)</label></li>
+        <li><input type="checkbox" id="clientOnboarding_2"> <label for="clientOnboarding_2">Gather assets: video clips, brand materials, music preferences</label></li>
+        <li><input type="checkbox" id="clientOnboarding_3"> <label for="clientOnboarding_3">Confirm pricing (based on selected package + add-ons)</label></li>
+        <li><input type="checkbox" id="clientOnboarding_4"> <label for="clientOnboarding_4">Create project folder: <code>/Clients/ClientName/ProjectName/</code></label></li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">2. Send Invoice (Initial)</h2>
-    <ul>
-      <li><input type="checkbox"> Invoice the client before starting</li>
-      <li><input type="checkbox"> Optional: Require 50% upfront for larger jobs</li>
-      <li><input type="checkbox"> Track invoice status (paid/unpaid)</li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">2. Send Invoice (Initial)</h2>
+      <ul>
+        <li><input type="checkbox" id="invoiceInitial_1"> <label for="invoiceInitial_1">Invoice the client before starting</label></li>
+        <li><input type="checkbox" id="invoiceInitial_2"> <label for="invoiceInitial_2">Optional: Require 50% upfront for larger jobs</label></li>
+        <li><input type="checkbox" id="invoiceInitial_3"> <label for="invoiceInitial_3">Track invoice status (paid/unpaid)</label></li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">3. Editing Phase</h2>
-    <ul>
-      <li><input type="checkbox"> Import and organize footage</li>
-      <li><input type="checkbox"> Perform rough cut</li>
-      <li><input type="checkbox"> Add text overlays, effects, music, transitions</li>
-      <li><input type="checkbox"> Add captions using Whisper + Whisper.cpp</li>
-      <li><input type="checkbox"> Export first draft</li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">3. Editing Phase</h2>
+      <ul>
+        <li><input type="checkbox" id="editingPhase_1"> <label for="editingPhase_1">Import and organize footage</label></li>
+        <li><input type="checkbox" id="editingPhase_2"> <label for="editingPhase_2">Perform rough cut</label></li>
+        <li><input type="checkbox" id="editingPhase_3"> <label for="editingPhase_3">Add text overlays, effects, music, transitions</label></li>
+        <li><input type="checkbox" id="editingPhase_4"> <label for="editingPhase_4">Add captions using Whisper + Whisper.cpp</label></li>
+        <li><input type="checkbox" id="editingPhase_5"> <label for="editingPhase_5">Export first draft</label></li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">4. Client Review & Revisions</h2>
-    <ul>
-      <li><input type="checkbox"> Upload to Frame.io or preferred platform</li>
-      <li><input type="checkbox"> Notify client and gather revision notes</li>
-      <li><input type="checkbox"> Apply revisions (limit based on package)</li>
-      <li><input type="checkbox"> If revisions exceed limit:
-        <ul>
-          <li><input type="checkbox"> Inform client</li>
-          <li><input type="checkbox"> Send invoice for extra revision ($10)</li>
-        </ul>
-      </li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">4. Client Review & Revisions</h2>
+      <ul>
+        <li><input type="checkbox" id="reviewRevisions_1"> <label for="reviewRevisions_1">Upload to Frame.io or preferred platform</label></li>
+        <li><input type="checkbox" id="reviewRevisions_2"> <label for="reviewRevisions_2">Notify client and gather revision notes</label></li>
+        <li><input type="checkbox" id="reviewRevisions_3"> <label for="reviewRevisions_3">Apply revisions (limit based on package)</label></li>
+        <li>
+          <input type="checkbox" id="reviewRevisions_4"> <label for="reviewRevisions_4">If revisions exceed limit:</label>
+          <ul>
+            <li><input type="checkbox" id="reviewRevisions_4_sub_1"> <label for="reviewRevisions_4_sub_1">Inform client</label></li>
+            <li><input type="checkbox" id="reviewRevisions_4_sub_2"> <label for="reviewRevisions_4_sub_2">Send invoice for extra revision ($10)</label></li>
+          </ul>
+        </li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">5. Final Approval</h2>
-    <ul>
-      <li><input type="checkbox"> Export final version (H.264 for delivery, H.265 for backup)</li>
-      <li><input type="checkbox"> Upload deliverables (final video, .srt file, thumbnail if included)</li>
-      <li><input type="checkbox"> Deliver via Frame.io, Dropbox, Google Drive, etc.</li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">5. Final Approval</h2>
+      <ul>
+        <li><input type="checkbox" id="finalApproval_1"> <label for="finalApproval_1">Export final version (H.264 for delivery, H.265 for backup)</label></li>
+        <li><input type="checkbox" id="finalApproval_2"> <label for="finalApproval_2">Upload deliverables (final video, .srt file, thumbnail if included)</label></li>
+        <li><input type="checkbox" id="finalApproval_3"> <label for="finalApproval_3">Deliver via Frame.io, Dropbox, Google Drive, etc.</label></li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">6. Send Final Invoice (If not prepaid in full)</h2>
-    <ul>
-      <li><input type="checkbox"> Include any add-ons or extra revision charges</li>
-      <li><input type="checkbox"> Confirm client payment</li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">6. Send Final Invoice (If not prepaid in full)</h2>
+      <ul>
+        <li><input type="checkbox" id="finalInvoice_1"> <label for="finalInvoice_1">Include any add-ons or extra revision charges</label></li>
+        <li><input type="checkbox" id="finalInvoice_2"> <label for="finalInvoice_2">Confirm client payment</label></li>
+      </ul>
+    </section>
 
-    <h2 contenteditable="true">7. Archive Project</h2>
-    <ul>
-      <li><input type="checkbox"> Compress and export a space-saving backup (H.265, 5–8 Mbps)</li>
-      <li><input type="checkbox"> Store in backup location: <code>/Archive/ClientName_ProjectName/</code></li>
-      <li><input type="checkbox"> Keep final exports, assets, invoice, and client notes</li>
-      <li><input type="checkbox"> Optionally delete from Frame.io or cloud to free up space</li>
-    </ul>
+    <section class="checklist-section">
+      <h2 contenteditable="true">7. Archive Project</h2>
+      <ul>
+        <li><input type="checkbox" id="archiveProject_1"> <label for="archiveProject_1">Compress and export a space-saving backup (H.265, 5–8 Mbps)</label></li>
+        <li><input type="checkbox" id="archiveProject_2"> <label for="archiveProject_2">Store in backup location: <code>/Archive/ClientName_ProjectName/</code></label></li>
+        <li><input type="checkbox" id="archiveProject_3"> <label for="archiveProject_3">Keep final exports, assets, invoice, and client notes</label></li>
+        <li><input type="checkbox" id="archiveProject_4"> <label for="archiveProject_4">Optionally delete from Frame.io or cloud to free up space</label></li>
+      </ul>
+    </section>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    function downloadPDF() {
+    // Utility function to display alerts
+    function showAlert(message, type = 'success') {
+      const alertDiv = document.getElementById('alertMessage');
+      alertDiv.textContent = message;
+      alertDiv.className = `alert-message show ${type}`; // Add type for different styles if needed
+      setTimeout(() => {
+        alertDiv.classList.remove('show');
+      }, 3000); // Hide after 3 seconds
+    }
+
+    // Function to download PDF
+    async function downloadPDF() {
+      showAlert('Generating PDF...', 'info');
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      const content = document.getElementById("checklist").innerText;
-      const lines = doc.splitTextToSize(content, 180);
-      doc.text(lines, 10, 10);
-      doc.save("Video_Editing_Workflow.pdf");
-    }
 
-    function saveToLocalStorage() {
-      const checklistHTML = document.getElementById("checklist").innerHTML;
-      localStorage.setItem("videoEditingWorkflow", checklistHTML);
-      alert("Progress saved to local storage.");
-    }
+      // Get the checklist content, preserving structure and checked states
+      const checklistElement = document.getElementById("checklist");
+      const titleElement = document.getElementById("mainTitle");
+      const title = titleElement ? titleElement.innerText : "Video Editing Workflow Checklist";
 
-    function loadFromLocalStorage() {
-      const saved = localStorage.getItem("videoEditingWorkflow");
-      if (saved) {
-        document.getElementById("checklist").innerHTML = saved;
-        alert("Progress loaded from local storage.");
-      } else {
-        alert("No saved progress found.");
+      let y = 10;
+      doc.setFontSize(22);
+      doc.text(title, doc.internal.pageSize.getWidth() / 2, y, { align: 'center' });
+      y += 20;
+
+      doc.setFontSize(12);
+
+      const sections = checklistElement.querySelectorAll('.checklist-section');
+      sections.forEach(section => {
+        const heading = section.querySelector('h2');
+        if (heading) {
+          y += 10; // Space before new section
+          doc.setFontSize(16);
+          doc.text(heading.innerText, 10, y);
+          y += 10;
+          doc.setFontSize(12);
+        }
+
+        const listItems = section.querySelectorAll('li');
+        listItems.forEach(item => {
+          let textContent = item.textContent.trim();
+          const checkbox = item.querySelector('input[type="checkbox"]');
+          if (checkbox && checkbox.checked) {
+            textContent = '[x] ' + textContent;
+          } else if (checkbox) {
+            textContent = '[ ] ' + textContent;
+          }
+
+          // Handle nested lists for display in PDF
+          const nestedList = item.querySelector('ul');
+          if (nestedList) {
+            textContent = textContent.replace(/\n\s*/g, ''); // Clean up newline chars
+            const subItems = nestedList.querySelectorAll('li');
+            subItems.forEach(subItem => {
+              let subTextContent = subItem.textContent.trim();
+              const subCheckbox = subItem.querySelector('input[type="checkbox"]');
+              if (subCheckbox && subCheckbox.checked) {
+                subTextContent = '    [x] ' + subTextContent;
+              } else if (subCheckbox) {
+                subTextContent = '    [ ] ' + subTextContent;
+              }
+              textContent += '\n' + subTextContent;
+            });
+          }
+
+          const lines = doc.splitTextToSize(textContent, 180); // Max width 180mm
+          if (y + lines.length * 7 > doc.internal.pageSize.getHeight() - 10) { // 7 is estimated line height
+            doc.addPage();
+            y = 10;
+          }
+          doc.text(lines, 10, y);
+          y += lines.length * 7; // Move down for the next line, estimate line height
+        });
+      });
+
+      try {
+        doc.save("Video_Editing_Workflow_Checklist.pdf");
+        showAlert('PDF downloaded successfully!', 'success');
+      } catch (error) {
+        console.error("Error saving PDF:", error);
+        showAlert('Failed to download PDF. Please try again.', 'error');
       }
     }
+
+    // Function to save progress to Local Storage
+    function saveToLocalStorage() {
+      const checklistState = {};
+      document.querySelectorAll('#checklist input[type="checkbox"]').forEach(checkbox => {
+        checklistState[checkbox.id] = checkbox.checked;
+      });
+      const title = document.getElementById('mainTitle').innerText;
+
+      localStorage.setItem("videoEditingWorkflowState", JSON.stringify(checklistState));
+      localStorage.setItem("videoEditingWorkflowTitle", title);
+      showAlert("Progress saved to local storage!");
+    }
+
+    // Function to load progress from Local Storage
+    function loadFromLocalStorage() {
+      const savedState = localStorage.getItem("videoEditingWorkflowState");
+      const savedTitle = localStorage.getItem("videoEditingWorkflowTitle");
+
+      if (savedState) {
+        const checklistState = JSON.parse(savedState);
+        document.querySelectorAll('#checklist input[type="checkbox"]').forEach(checkbox => {
+          if (checklistState.hasOwnProperty(checkbox.id)) {
+            checkbox.checked = checklistState[checkbox.id];
+          }
+        });
+        if (savedTitle) {
+          document.getElementById('mainTitle').innerText = savedTitle;
+        }
+        showAlert("Progress loaded from local storage.");
+      } else {
+        showAlert("No saved progress found.", 'info');
+      }
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('downloadPdfBtn').addEventListener('click', downloadPDF);
+      document.getElementById('saveProgressBtn').addEventListener('click', saveToLocalStorage);
+      document.getElementById('loadProgressBtn').addEventListener('click', loadFromLocalStorage);
+
+      // Auto-load on page load for convenience
+      loadFromLocalStorage();
+    });
   </script>
 </body>
 </html>
